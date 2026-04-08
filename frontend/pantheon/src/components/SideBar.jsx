@@ -1,31 +1,42 @@
-export default function Sidebar({ chats, onSelect, onDelete }) {
+export default function Sidebar({ sessions, activeSessionId, onSelect, onNew, onLogout, username }) {
+  const initial = username ? username[0].toUpperCase() : "?";
+
   return (
-    <div
-      style={{
-        width: 250,
-        borderRight: "1px solid #ccc",
-        padding: 10,
-      }}
-    >
-      <h3>Chats</h3>
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <div className="sidebar-logo">pantheon</div>
+        <button className="sidebar-new-btn" onClick={onNew}>
+          <span>+</span> New chat
+        </button>
+      </div>
 
-      {chats.map((chat) => (
-        <div
-          key={chat.id}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: 8,
-            cursor: "pointer",
-          }}
-        >
-          <span onClick={() => onSelect(chat.id)}>
-            {chat.title}
-          </span>
+      <div className="sidebar-list">
+        {sessions.length === 0 && (
+          <div style={{ padding: "12px 10px", color: "var(--text-faint)", fontSize: "12px", fontFamily: "var(--font-mono)" }}>
+            No chats yet
+          </div>
+        )}
+        {sessions.map((s) => (
+          <div
+            key={s.id}
+            className={`sidebar-session ${s.id === activeSessionId ? "active" : ""}`}
+            onClick={() => onSelect(s.id)}
+          >
+            <span className="sidebar-session-title">{s.title || "New Chat"}</span>
+            {/* delete kept minimal — add if backend supports it */}
+          </div>
+        ))}
+      </div>
 
-          <button onClick={() => onDelete(chat.id)}>X</button>
+      <div className="sidebar-footer">
+        <div className="sidebar-user">
+          <div className="sidebar-avatar">{initial}</div>
+          <span className="sidebar-username">{username}</span>
         </div>
-      ))}
+        <button className="sidebar-logout-btn" onClick={onLogout}>
+          Sign out
+        </button>
+      </div>
     </div>
   );
 }
