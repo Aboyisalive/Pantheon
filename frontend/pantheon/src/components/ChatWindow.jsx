@@ -12,7 +12,8 @@ export default function ChatWindow({ messages, loading }) {
     <div className="chat-window">
       {messages.length === 0 && !loading && (
         <div className="empty-state">
-          <p>// start a conversation</p>
+          <div className="empty-state-icon">◈</div>
+          <p>Start a conversation…</p>
         </div>
       )}
 
@@ -25,7 +26,6 @@ export default function ChatWindow({ messages, loading }) {
           <div className="loading-dots">
             <span /><span /><span />
           </div>
-          thinking…
         </div>
       )}
 

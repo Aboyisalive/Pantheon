@@ -1,26 +1,46 @@
 import { useState } from "react";
 import { login, register } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-export default function AuthPage({ onAuth }) {
-  const [mode, setMode]       = useState("login"); // "login" | "register"
-  const [username, setUsername] = useState("");
-  const [email, setEmail]     = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError]     = useState("");
+export default function AuthPage() {
+  const { signIn } = useAuth();
+  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const isLogin = mode === "login";
+
+  function handleChange(e) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError("");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
+    setError("");
 
     try {
-      if (mode === "register") {
-        await register({ username, email, password });
-        // Auto-login after registration
+      if (isLogin) {
+        const tokenData = await login(form.email, form.password);
+        // Decode minimal user info from the token payload to display in sidebar
+        // (we don't have a /me endpoint, so we use what we know)
+        const userData = { email: form.email, username: form.email.split("@")[0] };
+        signIn(tokenData.access_token, userData);
+      } else {
+        if (!form.username.trim()) {
+          setError("Username is required.");
+          return;
+        }
+        const newUser = await register(form.username, form.email, form.password);
+        // Auto-login after register
+        const tokenData = await login(form.email, form.password);
+        signIn(tokenData.access_token, {
+          email: newUser.email,
+          username: newUser.username,
+        });
       }
-      await login({ email, password });
-      onAuth();
     } catch (err) {
       setError(err.message || "Something went wrong.");
     } finally {
@@ -28,79 +48,88 @@ export default function AuthPage({ onAuth }) {
     }
   }
 
-  function switchMode() {
-    setMode(m => m === "login" ? "register" : "login");
+  function toggleMode() {
+    setMode(isLogin ? "register" : "login");
     setError("");
-    setUsername("");
-    setEmail("");
-    setPassword("");
+    setForm({ username: "", email: "", password: "" });
   }
 
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">pantheon</div>
-        <div className="auth-tagline">// your AI, your context</div>
+        <div className="auth-logo">Pantheon</div>
 
-        <div className="auth-title">
-          {mode === "login" ? "Sign in" : "Create an account"}
-        </div>
+        <h1 className="auth-title">
+          {isLogin ? "Welcome back." : "Create an account."}
+        </h1>
+        <p className="auth-subtitle">
+          {isLogin
+            ? "Sign in to continue your conversations."
+            : "Join Pantheon and start chatting."}
+        </p>
 
-        {error && <div className="auth-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          {mode === "register" && (
-            <div className="auth-field">
-              <label>Username</label>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {!isLogin && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="username">Username</label>
               <input
+                className="form-input"
+                id="username"
+                name="username"
                 type="text"
-                placeholder="your_handle"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                required
+                placeholder="yourname"
+                value={form.username}
+                onChange={handleChange}
+                disabled={loading}
                 autoComplete="username"
+                required={!isLogin}
               />
             </div>
           )}
 
-          <div className="auth-field">
-            <label>Email</label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="email">Email</label>
             <input
+              className="form-input"
+              id="email"
+              name="email"
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
+              value={form.email}
+              onChange={handleChange}
+              disabled={loading}
               autoComplete="email"
+              required
             />
           </div>
 
-          <div className="auth-field">
-            <label>Password</label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="password">Password</label>
             <input
+              className="form-input"
+              id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
+              value={form.password}
+              onChange={handleChange}
+              disabled={loading}
+              autoComplete={isLogin ? "current-password" : "new-password"}
               required
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
             />
           </div>
 
-          <button className="auth-btn" type="submit" disabled={loading}>
-            {loading
-              ? "Please wait…"
-              : mode === "login" ? "Sign in" : "Create account"}
+          {error && <div className="auth-error">{error}</div>}
+
+          <button className="btn-primary" type="submit" disabled={loading}>
+            {loading ? "Please wait…" : isLogin ? "Sign In" : "Create Account"}
           </button>
         </form>
 
-        <div className="auth-switch">
-          {mode === "login"
-            ? "Don't have an account?"
-            : "Already have an account?"}
-          {" "}
-          <button onClick={switchMode} type="button">
-            {mode === "login" ? "Register" : "Sign in"}
+        <div className="auth-footer">
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <button className="auth-link" type="button" onClick={toggleMode}>
+            {isLogin ? "Register" : "Sign in"}
           </button>
         </div>
       </div>
