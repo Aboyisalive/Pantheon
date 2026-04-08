@@ -7,13 +7,12 @@ class ChatCreate(BaseModel):
 
 class ChatOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
+ 
     id: int
-    username: str
-    email: str
     message: str
     response: str
     created_at: datetime
+
 
 
 class SessionCreate(BaseModel):
