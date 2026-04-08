@@ -34,10 +34,10 @@ def get_sessions(db: Session = Depends(get_db), user=Depends(get_current_user)):
 
 # Send message
 @router.post("/message", response_model=ChatOut)
-def send_message(chat: ChatCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    bot_response = f"Echo: {chat.message}"  # replace with LLM later
+async def send_message(chat: ChatCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    bot_response = await generate_response(chat.message)
     return chat_service.save_chat(db, user.id, chat.session_id, chat.message, bot_response)
-
+ 
 # Get session messages (paginated)
 @router.get("/sessions/{session_id}/messages", response_model=list[ChatOut])
 def get_messages(session_id: int, skip: int = 0, limit: int = 20, db: Session = Depends(get_db), user=Depends(get_current_user)):
