@@ -9,7 +9,6 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
 
   return (
     <div className="sidebar">
-      {/* Header */}
       <div className="sidebar-header">
         <div className="sidebar-logo">Pantheon</div>
         <button className="btn-new-chat" onClick={onNewChat}>
@@ -20,15 +19,15 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
         </button>
       </div>
 
-      {/* Session list */}
       <div className="sidebar-section-label">Conversations</div>
 
       <div className="sidebar-sessions">
         {sessions.length === 0 && (
-          <div style={{ padding: "12px 10px", fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+          <div className="sidebar-empty">
             No conversations yet.
           </div>
         )}
+
         {sessions.map((s) => (
           <div
             key={s.id}
@@ -47,11 +46,10 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
         ))}
       </div>
 
-      {/* Footer */}
       <div className="sidebar-footer">
         <div className="user-info">
           <div className="user-avatar">{initials}</div>
-          <div style={{ minWidth: 0 }}>
+          <div className="user-meta">
             <div className="user-name">{user?.username || "—"}</div>
             <div className="user-email">{user?.email || ""}</div>
           </div>
