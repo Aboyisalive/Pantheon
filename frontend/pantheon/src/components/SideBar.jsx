@@ -15,16 +15,16 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
-          New conversation
+          New convo
         </button>
       </div>
 
-      <div className="sidebar-section-label">Conversations</div>
+      <div className="sidebar-section-label">Convos</div>
 
       <div className="sidebar-sessions">
         {sessions.length === 0 && (
           <div className="sidebar-empty">
-            No conversations yet.
+            No convos yet.
           </div>
         )}
 

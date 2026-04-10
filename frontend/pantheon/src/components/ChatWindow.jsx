@@ -13,7 +13,7 @@ export default function ChatWindow({ messages, loading }) {
       {messages.length === 0 && !loading && (
         <div className="empty-state">
           <div className="empty-state-icon">◈</div>
-          <p>Start a conversation…</p>
+          <p>Start the convo…</p>
         </div>
       )}
 

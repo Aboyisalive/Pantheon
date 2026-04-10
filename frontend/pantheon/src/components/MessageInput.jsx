@@ -25,7 +25,7 @@ export default function MessageInput({ onSend, loading }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Message Pantheon…"
+          placeholder="Talk toPantheon…"
           disabled={loading}
           rows={1}
         />
