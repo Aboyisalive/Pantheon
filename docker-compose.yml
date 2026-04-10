@@ -12,5 +12,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      FRONTEND_URL: http://localhost:5173
+      # Comma-separated list of allowed frontend origins.
+      # Add your Cloudflare Pages domain alongside localhost for local dev.
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
     restart: unless-stopped
