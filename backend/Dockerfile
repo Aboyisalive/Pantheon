@@ -17,6 +17,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
+ENV FORCE_REBUILD=1
+
 EXPOSE 8000
 
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
