@@ -19,6 +19,8 @@ COPY . .
 
 ENV FORCE_REBUILD=1
 
+ENV CACHE_BUST=1
+
 EXPOSE 8000
 
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
