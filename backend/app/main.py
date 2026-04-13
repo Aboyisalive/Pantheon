@@ -16,12 +16,13 @@ Base.metadata.create_all(bind=engine)
 def create_app() -> FastAPI:
     app = FastAPI(title="Chatbot Backend API", version="1.0.0")
 
-    frontend_origin = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    frontend_urls = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    frontend_origins = [url.strip() for url in frontend_urls.split(",") if url.strip()]
 
     # CORS settings
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[frontend_origin],
+        allow_origins=frontend_origins,
         allow_methods=["*"],
         allow_credentials=True,
         allow_headers=["*"],
