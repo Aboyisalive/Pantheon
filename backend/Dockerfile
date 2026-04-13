@@ -18,6 +18,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY . .
 
 ENV FORCE_REBUILD=1
+#meh
+ENV CACHE_BUST=1
 
 EXPOSE 8000
 
