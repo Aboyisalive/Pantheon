@@ -14,6 +14,7 @@ export default function ChatPage() {
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ── Load sessions on mount ─────────────────────────────────
   useEffect(() => {
@@ -36,7 +37,6 @@ export default function ChatPage() {
 
     getSessionMessages(currentSessionId)
       .then((chats) => {
-        // Backend returns {message, response} pairs — expand to message array
         const expanded = chats.flatMap((c) => [
           { role: "user", content: c.message },
           { role: "assistant", content: c.response },
@@ -53,6 +53,7 @@ export default function ChatPage() {
       setSessions((prev) => [...prev, session]);
       setCurrentSessionId(session.id);
       setMessages([]);
+      setSidebarOpen(false);
     } catch (err) {
       console.error(err);
     }
@@ -61,13 +62,12 @@ export default function ChatPage() {
   // ── Select session ─────────────────────────────────────────
   const handleSelectSession = useCallback((id) => {
     setCurrentSessionId(id);
+    setSidebarOpen(false);
   }, []);
 
   // ── Delete session ─────────────────────────────────────────
   const handleDeleteSession = useCallback(
     (id) => {
-      // Optimistic removal (no delete endpoint in current backend spec,
-      // extend when you add one)
       setSessions((prev) => prev.filter((s) => s.id !== id));
       if (currentSessionId === id) {
         const remaining = sessions.filter((s) => s.id !== id);
@@ -85,7 +85,6 @@ export default function ChatPage() {
 
       let sessionId = currentSessionId;
 
-      // Auto-create a session if there isn't one
       if (!sessionId) {
         try {
           const session = await createSession(text.slice(0, 50));
@@ -98,7 +97,6 @@ export default function ChatPage() {
         }
       }
 
-      // Optimistically add the user message
       setMessages((prev) => [...prev, { role: "user", content: text }]);
       setLoading(true);
 
@@ -109,7 +107,6 @@ export default function ChatPage() {
           { role: "assistant", content: result.response },
         ]);
 
-        // Update session title if it was auto-named
         setSessions((prev) =>
           prev.map((s) =>
             s.id === sessionId && s.title === "New Chat"
@@ -133,16 +130,42 @@ export default function ChatPage() {
 
   return (
     <div className="app-container">
+      {/* Mobile backdrop — closes sidebar when tapping outside */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         sessions={sessions}
         currentSessionId={currentSessionId}
         onSelect={handleSelectSession}
         onDelete={handleDeleteSession}
         onNewChat={handleNewChat}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       <div className="chat-main">
         <div className="chat-header">
+          {/* Hamburger — mobile only */}
+          <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen((o) => !o)}
+            aria-label="Toggle sidebar"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path
+                d="M2 4h14M2 9h14M2 14h14"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+
           <span className="chat-header-title">
             {currentSession ? currentSession.title : "Pantheon"}
           </span>

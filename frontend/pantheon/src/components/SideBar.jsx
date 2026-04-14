@@ -1,6 +1,8 @@
 import { useAuth } from "../context/AuthContext";
 
-export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete, onNewChat }) {
+export default function Sidebar({
+  sessions,currentSessionId,onSelect,onDelete,onNewChat,isOpen,
+}) {
   const { user, signOut } = useAuth();
 
   const initials = user?.username
@@ -8,12 +10,17 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
     : "??";
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar${isOpen ? " sidebar--open" : ""}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">Pantheon</div>
         <button className="btn-new-chat" onClick={onNewChat}>
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <path
+              d="M6.5 1v11M1 6.5h11"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
           New convo
         </button>
@@ -23,9 +30,7 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
 
       <div className="sidebar-sessions">
         {sessions.length === 0 && (
-          <div className="sidebar-empty">
-            No convos yet.
-          </div>
+          <div className="sidebar-empty">No convos yet.</div>
         )}
 
         {sessions.map((s) => (
@@ -38,7 +43,10 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
             <button
               className="session-delete"
               title="Delete"
-              onClick={(e) => { e.stopPropagation(); onDelete(s.id); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(s.id);
+              }}
             >
               ×
             </button>
@@ -54,7 +62,9 @@ export default function Sidebar({ sessions, currentSessionId, onSelect, onDelete
             <div className="user-email">{user?.email || ""}</div>
           </div>
         </div>
-        <button className="btn-logout" onClick={signOut}>Sign out</button>
+        <button className="btn-logout" onClick={signOut}>
+          Sign out
+        </button>
       </div>
     </div>
   );
