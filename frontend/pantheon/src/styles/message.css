@@ -922,3 +922,75 @@ button:focus-visible,
     border-radius: 24px;
   }
 }
+
+/* ============================================================
+   MOBILE FIX PATCH — NON-DESTRUCTIVE
+   ============================================================ */
+
+/* Prevent horizontal scroll issues */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Fix content width overflow */
+.message-row,
+.loading-indicator,
+.input-wrapper {
+  max-width: 100%;
+}
+
+/* Improve text wrapping inside messages */
+.message {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Fix input staying visible on mobile */
+.message-input-container {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+
+  /* Reduce excessive padding */
+  .chat-window {
+    padding: 18px 0 12px;
+  }
+
+  .message-row,
+  .loading-indicator {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Better message sizing */
+  .message {
+    max-width: 92%;
+    font-size: 0.92rem;
+    padding: 12px 14px;
+  }
+
+  /* Prevent sidebar from squeezing content too hard */
+  .sidebar {
+    max-height: 180px;
+  }
+
+  /* Input spacing fix */
+  .message-input-container {
+    padding: 12px 12px 16px;
+  }
+
+  .input-wrapper {
+    padding: 10px 10px 10px 12px;
+    border-radius: 22px;
+  }
+
+  /* Button slightly smaller */
+  .send-button {
+    width: 40px;
+    height: 40px;
+  }
+}
