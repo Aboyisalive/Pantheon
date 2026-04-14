@@ -16,7 +16,7 @@ Base.metadata.create_all(bind=engine)
 def create_app() -> FastAPI:
     app = FastAPI(title="Chatbot Backend API", version="1.0.0")
 
-    frontend_urls = os.getenv("FRONTEND_URL", "https://pantheon-umber.vercel.app/")
+    frontend_urls = os.getenv("FRONTEND_URL", "https://pantheon-umber.vercel.app")
     frontend_origins = [url.strip() for url in frontend_urls.split(",") if url.strip()]
 
     # CORS settings
