@@ -1,4 +1,7 @@
+import logging
 import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.db import Base, engine
@@ -9,12 +12,22 @@ from app.models.chat import Chat
 from app.models.chat_session import ChatSession
 from app.api.v1 import chat, health, auth
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+logger = logging.getLogger("uvicorn.error")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create tables on startup instead of at import time, so a temporarily
+    # unreachable database doesn't crash-loop the container on deploy
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception:
+        logger.exception("Could not create tables at startup; continuing without them")
+    yield
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Chatbot Backend API", version="1.0.0")
+    app = FastAPI(title="Chatbot Backend API", version="1.0.0", lifespan=lifespan)
 
     frontend_urls = os.getenv("FRONTEND_URL", "https://pantheon-umber.vercel.app")
     frontend_origins = [url.strip() for url in frontend_urls.split(",") if url.strip()]

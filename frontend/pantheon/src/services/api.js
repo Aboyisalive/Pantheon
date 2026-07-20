@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+// Trailing slashes would produce "//api/v1/..." paths, which FastAPI 404s
+const API_BASE = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
 // ── Token helpers ──────────────────────────────────────────
 export function getToken() {

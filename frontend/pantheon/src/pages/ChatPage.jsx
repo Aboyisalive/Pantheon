@@ -21,8 +21,8 @@ export default function ChatPage() {
     getSessions()
       .then((data) => {
         setSessions(data);
-        if (data.length > 0 && !currentSessionId) {
-          setCurrentSessionId(data[data.length - 1].id);
+        if (data.length > 0) {
+          setCurrentSessionId((prev) => prev ?? data[data.length - 1].id);
         }
       })
       .catch(console.error);
