@@ -1,9 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from app.services.chat_service import generate_response
 from sqlalchemy.orm import Session
 from app.db.db import get_db
-from app.schemas.chat import ChatCreate, ChatOut, SessionCreate, SessionOut
+from app.schemas.chat import (
+    ChatCreate,
+    ChatOut,
+    SessionCreate,
+    SessionUpdate,
+    SessionOut,
+    FolderCreate,
+    FolderOut,
+)
 from app.services import chat_service
 from app.api.v1.auth import get_current_user
 
@@ -41,4 +49,48 @@ async def send_message(chat: ChatCreate, db: Session = Depends(get_db), user=Dep
 # Get session messages (paginated)
 @router.get("/sessions/{session_id}/messages", response_model=list[ChatOut])
 def get_messages(session_id: int, skip: int = 0, limit: int = 20, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if not chat_service.get_session(db, user.id, session_id):
+        raise HTTPException(status_code=404, detail="Session not found")
     return chat_service.get_session_chats(db, session_id, skip, limit)
+
+# Rename / move session to folder
+@router.patch("/sessions/{session_id}", response_model=SessionOut)
+def update_session(session_id: int, payload: SessionUpdate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    session = chat_service.get_session(db, user.id, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # folder_id=null means "unfile"; absent means "leave alone"
+    folder_id = payload.folder_id if "folder_id" in payload.model_fields_set else ...
+    if folder_id is not ... and folder_id is not None:
+        if not chat_service.get_folder(db, user.id, folder_id):
+            raise HTTPException(status_code=404, detail="Folder not found")
+
+    return chat_service.update_session(db, session, title=payload.title, folder_id=folder_id)
+
+# Delete session
+@router.delete("/sessions/{session_id}", status_code=204)
+def delete_session(session_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    session = chat_service.get_session(db, user.id, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    chat_service.delete_session(db, session)
+
+# ── Folders ──
+@router.get("/folders", response_model=list[FolderOut])
+def get_folders(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    return chat_service.get_user_folders(db, user.id)
+
+@router.post("/folders", response_model=FolderOut)
+def create_folder(payload: FolderCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Folder name is required")
+    return chat_service.create_folder(db, user.id, name[:60])
+
+@router.delete("/folders/{folder_id}", status_code=204)
+def delete_folder(folder_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    folder = chat_service.get_folder(db, user.id, folder_id)
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    chat_service.delete_folder(db, folder)

@@ -33,3 +33,14 @@ def change_password(db: Session, user: User, new_password: str):
     db.commit()
     db.refresh(user)
     return user
+
+def delete_user(db: Session, user: User):
+    from app.models.chat import Chat
+    from app.models.chat_session import ChatSession
+    from app.models.folder import Folder
+
+    db.query(Chat).filter(Chat.user_id == user.id).delete()
+    db.query(ChatSession).filter(ChatSession.user_id == user.id).delete()
+    db.query(Folder).filter(Folder.user_id == user.id).delete()
+    db.delete(user)
+    db.commit()

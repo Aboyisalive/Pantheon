@@ -3,29 +3,224 @@ import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
 import "../styles/sidebar.css";
 
+function SessionItem({
+  session, active, folders, t,
+  onSelect, onDelete, onRename, onMove, onCreateFolder,
+  menuOpen, onToggleMenu, onCloseMenu,
+}) {
+  const [renaming, setRenaming] = useState(false);
+  const [draft, setDraft] = useState(session.title || "");
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const menuRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (renaming) inputRef.current?.select();
+  }, [renaming]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointerDown = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) onCloseMenu();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [menuOpen, onCloseMenu]);
+
+  function commitRename() {
+    const title = draft.trim();
+    setRenaming(false);
+    if (title && title !== session.title) onRename(session.id, title);
+    else setDraft(session.title || "");
+  }
+
+  async function handleNewFolder(e) {
+    e.preventDefault();
+    const name = newFolderName.trim();
+    if (!name) return;
+    try {
+      const folder = await onCreateFolder(name);
+      onMove(session.id, folder.id);
+    } catch (err) {
+      console.error(err);
+    }
+    onCloseMenu();
+  }
+
+  return (
+    <div
+      className={`session-item${active ? " active" : ""}`}
+      onClick={() => !renaming && onSelect(session.id)}
+    >
+      {renaming ? (
+        <input
+          ref={inputRef}
+          className="session-rename-input"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commitRename}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") commitRename();
+            if (e.key === "Escape") {
+              setDraft(session.title || "");
+              setRenaming(false);
+            }
+          }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <span className="session-title">{session.title || t("untitled")}</span>
+      )}
+
+      <div className="session-menu-wrap" onClick={(e) => e.stopPropagation()}>
+        <button
+          className="session-menu-button"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          onClick={() => {
+            // fresh submenu state on every open
+            setMoveOpen(false);
+            setNewFolderName("");
+            onToggleMenu();
+          }}
+        >
+          ⋯
+        </button>
+
+        {menuOpen && (
+          <div className="session-menu" ref={menuRef}>
+            <button
+              className="session-menu-item"
+              onClick={() => {
+                setDraft(session.title || "");
+                setRenaming(true);
+                onCloseMenu();
+              }}
+            >
+              {t("rename")}
+            </button>
+
+            <button
+              className="session-menu-item"
+              onClick={() => setMoveOpen((o) => !o)}
+            >
+              {t("moveToFolder")} ▸
+            </button>
+
+            {moveOpen && (
+              <div className="session-menu-sub">
+                {folders
+                  .filter((f) => f.id !== session.folder_id)
+                  .map((f) => (
+                    <button
+                      key={f.id}
+                      className="session-menu-item"
+                      onClick={() => {
+                        onMove(session.id, f.id);
+                        onCloseMenu();
+                      }}
+                    >
+                      {f.name}
+                    </button>
+                  ))}
+                <form className="session-menu-newfolder" onSubmit={handleNewFolder}>
+                  <input
+                    className="session-rename-input"
+                    placeholder={t("folderName")}
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                  />
+                  <button className="session-menu-item" type="submit">
+                    + {t("newFolder")}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {session.folder_id != null && (
+              <button
+                className="session-menu-item"
+                onClick={() => {
+                  onMove(session.id, null);
+                  onCloseMenu();
+                }}
+              >
+                {t("removeFromFolder")}
+              </button>
+            )}
+
+            <button
+              className="session-menu-item danger"
+              onClick={() => {
+                onDelete(session.id);
+                onCloseMenu();
+              }}
+            >
+              {t("deleteChat")}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Sidebar({
-  sessions, currentSessionId, onSelect, onDelete, onNewChat, isOpen, onClose, onOpenSettings,
+  sessions, folders, currentSessionId,
+  onSelect, onDelete, onRename, onMove, onCreateFolder, onDeleteFolder,
+  onNewChat, isOpen, onClose, onOpenSettings,
 }) {
   const { user, signOut } = useAuth();
   const { t } = useSettings();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [collapsed, setCollapsed] = useState(() => new Set());
+  const userMenuRef = useRef(null);
 
   const initials = user?.username
     ? user.username.slice(0, 2).toUpperCase()
     : "??";
 
-  // Close the popover when clicking anywhere outside it
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!userMenuOpen) return;
     const onPointerDown = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [menuOpen]);
+  }, [userMenuOpen]);
+
+  function toggleFolder(id) {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const unfiled = sessions.filter((s) => s.folder_id == null);
+
+  const renderSession = (s) => (
+    <SessionItem
+      key={s.id}
+      session={s}
+      active={s.id === currentSessionId}
+      folders={folders}
+      t={t}
+      onSelect={onSelect}
+      onDelete={onDelete}
+      onRename={onRename}
+      onMove={onMove}
+      onCreateFolder={onCreateFolder}
+      menuOpen={openMenuId === s.id}
+      onToggleMenu={() => setOpenMenuId((id) => (id === s.id ? null : s.id))}
+      onCloseMenu={() => setOpenMenuId(null)}
+    />
+  );
 
   return (
     <div className={`sidebar${isOpen ? " sidebar--open" : ""}`}>
@@ -53,42 +248,49 @@ export default function Sidebar({
         </button>
       </div>
 
-      <div className="sidebar-section-label">{t("convos")}</div>
-
       <div className="sidebar-sessions">
+        {folders.map((f) => {
+          const inFolder = sessions.filter((s) => s.folder_id === f.id);
+          const isCollapsed = collapsed.has(f.id);
+          return (
+            <div className="folder-group" key={f.id}>
+              <div className="folder-header" onClick={() => toggleFolder(f.id)}>
+                <span className="folder-chevron">{isCollapsed ? "▸" : "▾"}</span>
+                <span className="folder-name">{f.name}</span>
+                <span className="folder-count">{inFolder.length}</span>
+                <button
+                  className="folder-delete"
+                  title={t("deleteChat")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteFolder(f.id);
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              {!isCollapsed && inFolder.map(renderSession)}
+            </div>
+          );
+        })}
+
+        <div className="sidebar-section-label">{t("convos")}</div>
+
         {sessions.length === 0 && (
           <div className="sidebar-empty">{t("noConvos")}</div>
         )}
 
-        {sessions.map((s) => (
-          <div
-            key={s.id}
-            className={`session-item${s.id === currentSessionId ? " active" : ""}`}
-            onClick={() => onSelect(s.id)}
-          >
-            <span className="session-title">{s.title || t("untitled")}</span>
-            <button
-              className="session-delete"
-              title="Delete"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(s.id);
-              }}
-            >
-              ×
-            </button>
-          </div>
-        ))}
+        {unfiled.map(renderSession)}
       </div>
 
       <div className="sidebar-footer">
-        <div className="user-menu-wrap" ref={menuRef}>
-          {menuOpen && (
+        <div className="user-menu-wrap" ref={userMenuRef}>
+          {userMenuOpen && (
             <div className="user-menu">
               <button
                 className="user-menu-item"
                 onClick={() => {
-                  setMenuOpen(false);
+                  setUserMenuOpen(false);
                   onOpenSettings();
                 }}
               >
@@ -125,9 +327,9 @@ export default function Sidebar({
 
           <button
             className="user-info-button"
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={() => setUserMenuOpen((o) => !o)}
             aria-haspopup="menu"
-            aria-expanded={menuOpen}
+            aria-expanded={userMenuOpen}
           >
             <div className="user-info">
               <div className="user-avatar">{initials}</div>

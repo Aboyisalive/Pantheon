@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
-import { updateProfile, changePassword, setToken } from "../services/api";
+import { updateProfile, changePassword, deleteAccount, setToken } from "../services/api";
 import { LANGUAGES } from "../i18n";
 import "../styles/settings.css";
 
 export default function SettingsModal({ onClose }) {
-  const { user, signIn } = useAuth();
+  const { user, signIn, signOut } = useAuth();
   const { theme, setTheme, language, setLanguage, t } = useSettings();
 
   const [tab, setTab] = useState("general"); // "general" | "account"
@@ -17,6 +17,8 @@ export default function SettingsModal({ onClose }) {
     email: user?.email || "",
   });
   const [passwords, setPasswords] = useState({ current: "", next: "" });
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
   const [status, setStatus] = useState(null); // { kind: "ok" | "error", text }
   const [busy, setBusy] = useState(false);
 
@@ -56,6 +58,19 @@ export default function SettingsModal({ onClose }) {
     } catch (err) {
       setStatus({ kind: "error", text: err.message });
     } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteAccount(e) {
+    e.preventDefault();
+    setBusy(true);
+    setStatus(null);
+    try {
+      await deleteAccount(deletePassword);
+      signOut(); // token is gone with the account
+    } catch (err) {
+      setStatus({ kind: "error", text: err.message });
       setBusy(false);
     }
   }
@@ -211,6 +226,59 @@ export default function SettingsModal({ onClose }) {
                     {busy ? t("saving") : t("changePassword")}
                   </button>
                 </form>
+
+                <div className="danger-zone">
+                  <div className="settings-section-label">{t("dangerZone")}</div>
+                  <p className="danger-zone-warn">{t("deleteAccountWarn")}</p>
+
+                  {!confirmingDelete ? (
+                    <button
+                      className="btn-danger"
+                      type="button"
+                      onClick={() => setConfirmingDelete(true)}
+                    >
+                      {t("deleteAccount")}
+                    </button>
+                  ) : (
+                    <form className="settings-form" onSubmit={handleDeleteAccount}>
+                      <div className="form-group">
+                        <label className="form-label" htmlFor="settings-delete-password">
+                          {t("password")}
+                        </label>
+                        <input
+                          className="form-input"
+                          id="settings-delete-password"
+                          type="password"
+                          autoComplete="current-password"
+                          value={deletePassword}
+                          onChange={(e) => setDeletePassword(e.target.value)}
+                          disabled={busy}
+                          required
+                        />
+                      </div>
+                      <div className="danger-zone-actions">
+                        <button
+                          className="btn-danger"
+                          type="submit"
+                          disabled={busy || !deletePassword}
+                        >
+                          {busy ? t("saving") : t("deleteAccount")}
+                        </button>
+                        <button
+                          className="btn-ghost"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => {
+                            setConfirmingDelete(false);
+                            setDeletePassword("");
+                          }}
+                        >
+                          {t("cancel")}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
               </>
             )}
 

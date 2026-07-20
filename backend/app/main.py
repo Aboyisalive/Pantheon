@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.db.db import Base, engine
 
@@ -12,6 +13,7 @@ from app.db.db import Base, engine
 from app.models.user import User
 from app.models.chat import Chat
 from app.models.chat_session import ChatSession
+from app.models.folder import Folder
 from app.api.v1 import chat, health, auth
 
 logger = logging.getLogger("uvicorn.error")
@@ -23,6 +25,12 @@ async def lifespan(app: FastAPI):
     # unreachable database doesn't crash-loop the container on deploy
     try:
         Base.metadata.create_all(bind=engine)
+        # create_all never alters existing tables, so bolt on new columns here
+        with engine.begin() as conn:
+            conn.execute(text(
+                "ALTER TABLE chat_sessions "
+                "ADD COLUMN IF NOT EXISTS folder_id INTEGER REFERENCES folders(id)"
+            ))
     except Exception:
         logger.exception("Could not create tables at startup; continuing without them")
     yield

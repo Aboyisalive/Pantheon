@@ -107,6 +107,13 @@ export async function changePassword(currentPassword, newPassword) {
   });
 }
 
+export async function deleteAccount(password) {
+  return apiFetch("/api/v1/me/delete", {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
+}
+
 // ── Sessions ───────────────────────────────────────────────
 export async function createSession(title = "New Chat") {
   return apiFetch("/api/v1/sessions", {
@@ -117,6 +124,34 @@ export async function createSession(title = "New Chat") {
 
 export async function getSessions() {
   return apiFetch("/api/v1/sessions");
+}
+
+/** patch = { title } and/or { folder_id } (folder_id: null unfiles) */
+export async function updateSession(sessionId, patch) {
+  return apiFetch(`/api/v1/sessions/${sessionId}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function deleteSession(sessionId) {
+  return apiFetch(`/api/v1/sessions/${sessionId}`, { method: "DELETE" });
+}
+
+// ── Folders ────────────────────────────────────────────────
+export async function getFolders() {
+  return apiFetch("/api/v1/folders");
+}
+
+export async function createFolder(name) {
+  return apiFetch("/api/v1/folders", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function deleteFolder(folderId) {
+  return apiFetch(`/api/v1/folders/${folderId}`, { method: "DELETE" });
 }
 
 // ── Messages ───────────────────────────────────────────────

@@ -354,3 +354,74 @@
     justify-self: stretch;
   }
 }
+
+/* ── Danger zone ── */
+.danger-zone {
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 16px;
+  border: 2px dashed var(--danger);
+  border-radius: var(--radius-md);
+  background: var(--danger-container);
+}
+
+.danger-zone-warn {
+  margin: 0;
+  color: var(--on-danger-container);
+  font-weight: 700;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.danger-zone-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-danger {
+  min-height: 46px;
+  padding: 0 20px;
+  border: 2px solid var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--shadow-c);
+}
+
+.btn-danger:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  min-height: 46px;
+  padding: 0 20px;
+  border: 2px solid var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-soft);
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}

@@ -10,6 +10,7 @@ from app.schemas.user import (
     UserOut,
     UserUpdate,
     PasswordChange,
+    PasswordConfirm,
     Token,
     UserWithToken,
 )
@@ -89,3 +90,11 @@ def change_my_password(payload: PasswordChange, db: Session = Depends(get_db), u
         raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
 
     user_service.change_password(db, user, payload.new_password)
+
+
+# Delete account (password-confirmed; wipes chats, sessions, folders)
+@router.post("/me/delete", status_code=204)
+def delete_my_account(payload: PasswordConfirm, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if not auth.verify_password(payload.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Password is incorrect")
+    user_service.delete_user(db, user)

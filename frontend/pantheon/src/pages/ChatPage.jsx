@@ -8,11 +8,17 @@ import {
   createSession,
   getSessionMessages,
   sendMessage,
+  updateSession,
+  deleteSession,
+  getFolders,
+  createFolder,
+  deleteFolder,
 } from "../services/api";
 import "../styles/chat.css";
 
 export default function ChatPage() {
   const [sessions, setSessions] = useState([]);
+  const [folders, setFolders] = useState([]);
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +43,7 @@ export default function ChatPage() {
         }
       })
       .catch(console.error);
+    getFolders().then(setFolders).catch(console.error);
   }, []);
 
   // ── Load messages when session changes ─────────────────────
@@ -78,7 +85,13 @@ export default function ChatPage() {
 
   // ── Delete session ─────────────────────────────────────────
   const handleDeleteSession = useCallback(
-    (id) => {
+    async (id) => {
+      try {
+        await deleteSession(id);
+      } catch (err) {
+        console.error(err);
+        return;
+      }
       setSessions((prev) => prev.filter((s) => s.id !== id));
       if (currentSessionId === id) {
         const remaining = sessions.filter((s) => s.id !== id);
@@ -88,6 +101,45 @@ export default function ChatPage() {
     },
     [currentSessionId, sessions]
   );
+
+  // ── Rename session ─────────────────────────────────────────
+  const handleRenameSession = useCallback(async (id, title) => {
+    try {
+      const updated = await updateSession(id, { title });
+      setSessions((prev) => prev.map((s) => (s.id === id ? updated : s)));
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  // ── Move session to folder (folderId null = unfile) ────────
+  const handleMoveSession = useCallback(async (id, folderId) => {
+    try {
+      const updated = await updateSession(id, { folder_id: folderId });
+      setSessions((prev) => prev.map((s) => (s.id === id ? updated : s)));
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  // ── Folders ────────────────────────────────────────────────
+  const handleCreateFolder = useCallback(async (name) => {
+    const folder = await createFolder(name);
+    setFolders((prev) => [...prev, folder]);
+    return folder;
+  }, []);
+
+  const handleDeleteFolder = useCallback(async (id) => {
+    try {
+      await deleteFolder(id);
+      setFolders((prev) => prev.filter((f) => f.id !== id));
+      setSessions((prev) =>
+        prev.map((s) => (s.folder_id === id ? { ...s, folder_id: null } : s))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   // ── Send message ───────────────────────────────────────────
   const handleSend = useCallback(
@@ -151,9 +203,14 @@ export default function ChatPage() {
 
       <Sidebar
         sessions={sessions}
+        folders={folders}
         currentSessionId={currentSessionId}
         onSelect={handleSelectSession}
         onDelete={handleDeleteSession}
+        onRename={handleRenameSession}
+        onMove={handleMoveSession}
+        onCreateFolder={handleCreateFolder}
+        onDeleteFolder={handleDeleteFolder}
         onNewChat={handleNewChat}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
