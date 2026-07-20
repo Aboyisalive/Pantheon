@@ -45,7 +45,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 # Login
 @router.post("/token", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = user_service.get_user_by_email(db, form_data.username)
+    # Accept either email or username as the identifier
+    user = user_service.get_user_by_email(db, form_data.username) \
+        or user_service.get_user_by_username(db, form_data.username)
 
     if not user or not auth.verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")

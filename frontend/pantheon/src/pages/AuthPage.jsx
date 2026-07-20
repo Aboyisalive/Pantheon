@@ -88,17 +88,19 @@ export default function AuthPage() {
           )}
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Email</label>
+            <label className="form-label" htmlFor="email">
+              {isLogin ? "Username or email" : "Email"}
+            </label>
             <input
               className="form-input"
               id="email"
               name="email"
-              type="email"
-              placeholder="you@example.com"
+              type={isLogin ? "text" : "email"}
+              placeholder={isLogin ? "yourname or you@example.com" : "you@example.com"}
               value={form.email}
               onChange={handleChange}
               disabled={loading}
-              autoComplete="email"
+              autoComplete={isLogin ? "username" : "email"}
               required
             />
           </div>
