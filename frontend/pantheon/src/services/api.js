@@ -81,6 +81,32 @@ export async function login(email, password) {
   return res.json(); // { access_token, token_type }
 }
 
+// ── Account ────────────────────────────────────────────────
+export async function getMe() {
+  return apiFetch("/api/v1/me");
+}
+
+/**
+ * Returns { user, access_token, token_type } — token is re-minted
+ * because changing the email invalidates the old token subject.
+ */
+export async function updateProfile({ username, email }) {
+  return apiFetch("/api/v1/me", {
+    method: "PATCH",
+    body: JSON.stringify({ username, email }),
+  });
+}
+
+export async function changePassword(currentPassword, newPassword) {
+  return apiFetch("/api/v1/me/password", {
+    method: "PUT",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
+}
+
 // ── Sessions ───────────────────────────────────────────────
 export async function createSession(title = "New Chat") {
   return apiFetch("/api/v1/sessions", {

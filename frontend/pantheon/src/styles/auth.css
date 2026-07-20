@@ -192,3 +192,25 @@
     border-radius: 24px;
   }
 }
+
+/* ── Light theme ── */
+[data-theme="light"] .auth-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(28, 30, 34, 0.08);
+}
+
+[data-theme="light"] .form-input {
+  background: #ffffff;
+}
+
+[data-theme="light"] .form-input:focus {
+  background: #ffffff;
+}
+
+[data-theme="light"] .auth-error {
+  color: #b3403f;
+}
+
+[data-theme="light"] .btn-primary {
+  color: #fff;
+}

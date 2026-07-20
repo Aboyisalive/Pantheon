@@ -47,6 +47,41 @@
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
+/* ── Light theme tokens ─────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f4f4f6;
+  --bg-elevated: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f6f6f8;
+  --panel-3: #eeeff2;
+  --panel-soft: #f2f2f5;
+  --border: #dcdfe4;
+  --border-strong: #c4c9d1;
+
+  --text: #1c1e22;
+  --text-soft: #34373d;
+  --text-muted: #5d636d;
+  --text-faint: #8a919b;
+
+  --accent: #e0762f;
+  --accent-strong: #c96524;
+  --accent-soft: rgba(224, 118, 47, 0.12);
+  --accent-ring: rgba(224, 118, 47, 0.22);
+
+  --shadow-lg: 0 24px 60px rgba(28, 30, 34, 0.14);
+  --shadow-md: 0 14px 30px rgba(28, 30, 34, 0.1);
+  --shadow-sm: 0 8px 18px rgba(28, 30, 34, 0.07);
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(circle at top left, rgba(224, 118, 47, 0.05), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(28, 30, 34, 0.03), transparent 24%),
+    linear-gradient(180deg, #f7f7f9 0%, #f2f2f5 100%);
+}
+
 * {
   box-sizing: border-box;
 }

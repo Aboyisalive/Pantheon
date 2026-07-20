@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import Sidebar from "../components/SideBar";
 import ChatWindow from "../components/ChatWindow";
 import MessageInput from "../components/MessageInput";
+import SettingsModal from "../components/SettingsModal";
 import {
   getSessions,
   createSession,
@@ -16,6 +17,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // ── Close sidebar on Escape ────────────────────────────────
   useEffect(() => {
@@ -155,7 +157,13 @@ export default function ChatPage() {
         onNewChat={handleNewChat}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onOpenSettings={() => {
+          setSidebarOpen(false);
+          setSettingsOpen(true);
+        }}
       />
+
+      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
 
       <div className="chat-main">
         <div className="chat-header">

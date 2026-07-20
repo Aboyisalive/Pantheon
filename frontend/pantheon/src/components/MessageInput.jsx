@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useSettings } from "../context/SettingsContext";
 
 export default function MessageInput({ onSend, loading }) {
   const [input, setInput] = useState("");
   const textareaRef = useRef(null);
+  const { t } = useSettings();
 
   // Auto-grow up to the CSS max-height, then scroll inside
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function MessageInput({ onSend, loading }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Talk to Pantheon…"
+          placeholder={t("inputPlaceholder")}
           disabled={loading}
           rows={1}
         />
@@ -50,7 +52,7 @@ export default function MessageInput({ onSend, loading }) {
           </svg>
         </button>
       </div>
-      <p className="input-hint">Enter to send · Shift+Enter for newline</p>
+      <p className="input-hint">{t("inputHint")}</p>
     </div>
   );
 }

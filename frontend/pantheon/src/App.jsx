@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { SettingsProvider } from "./context/SettingsContext";
 import AuthPage from "./pages/AuthPage";
 import ChatPage from "./pages/ChatPage";
 
@@ -9,8 +10,10 @@ function Root() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Root />
-    </AuthProvider>
+    <SettingsProvider>
+      <AuthProvider>
+        <Root />
+      </AuthProvider>
+    </SettingsProvider>
   );
 }

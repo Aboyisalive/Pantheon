@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { login, register } from "../services/api";
+import { login, register, getMe, setToken } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "../styles/auth.css";
 
@@ -25,10 +25,9 @@ export default function AuthPage() {
     try {
       if (isLogin) {
         const tokenData = await login(form.email, form.password);
-        // Decode minimal user info from the token payload to display in sidebar
-        // (we don't have a /me endpoint, so we use what we know)
-        const userData = { email: form.email, username: form.email.split("@")[0] };
-        signIn(tokenData.access_token, userData);
+        setToken(tokenData.access_token);
+        const me = await getMe();
+        signIn(tokenData.access_token, { email: me.email, username: me.username });
       } else {
         if (!form.username.trim()) {
           setError("Username is required.");

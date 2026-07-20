@@ -325,3 +325,50 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ── Light theme ── */
+[data-theme="light"] .sidebar {
+  background: rgba(255, 255, 255, 0.88);
+  border-right-color: rgba(28, 30, 34, 0.08);
+  box-shadow: inset -1px 0 0 rgba(28, 30, 34, 0.02);
+}
+
+[data-theme="light"] .sidebar-close,
+[data-theme="light"] .sidebar-toggle {
+  background: rgba(28, 30, 34, 0.03);
+}
+
+[data-theme="light"] .sidebar-close:hover,
+[data-theme="light"] .sidebar-toggle:hover {
+  background: rgba(28, 30, 34, 0.06);
+}
+
+[data-theme="light"] .sidebar-empty,
+[data-theme="light"] .user-info {
+  background: rgba(28, 30, 34, 0.03);
+  border-color: rgba(28, 30, 34, 0.06);
+}
+
+[data-theme="light"] .session-item:hover {
+  background: rgba(28, 30, 34, 0.05);
+  border-color: rgba(28, 30, 34, 0.06);
+}
+
+[data-theme="light"] .sidebar-footer {
+  border-top-color: rgba(28, 30, 34, 0.08);
+}
+
+[data-theme="light"] .btn-logout {
+  background: rgba(28, 30, 34, 0.025);
+}
+
+[data-theme="light"] .user-avatar {
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  [data-theme="light"] .sidebar {
+    background: rgba(252, 252, 253, 0.99);
+    border-right-color: rgba(28, 30, 34, 0.1);
+  }
+}

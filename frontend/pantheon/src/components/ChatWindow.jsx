@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import Message from "./Message";
+import { useSettings } from "../context/SettingsContext";
 
 export default function ChatWindow({ messages, loading }) {
   const bottomRef = useRef(null);
+  const { t } = useSettings();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -13,7 +15,7 @@ export default function ChatWindow({ messages, loading }) {
       {messages.length === 0 && !loading && (
         <div className="empty-state">
           <div className="empty-state-icon">◈</div>
-          <p>Start the convo…</p>
+          <p>{t("startConvo")}</p>
         </div>
       )}
 

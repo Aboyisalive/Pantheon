@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
+from typing import Optional
 
 
 class UserCreate(BaseModel):
@@ -17,6 +18,22 @@ class UserOut(BaseModel):
     created_at: datetime
 
 
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class UserWithToken(BaseModel):
+    user: UserOut
     access_token: str
     token_type: str
