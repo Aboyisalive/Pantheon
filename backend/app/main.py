@@ -2,8 +2,10 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 from app.db.db import Base, engine
 
 # import models so SQLAlchemy knows about them
@@ -41,6 +43,13 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
         
+    # Handled here (not ServerErrorMiddleware) so the 503 passes back through
+    # CORSMiddleware and the browser surfaces it instead of a CORS failure
+    @app.exception_handler(SQLAlchemyError)
+    async def db_error_handler(request: Request, exc: SQLAlchemyError):
+        logger.error("Database error on %s: %s", request.url.path, exc)
+        return JSONResponse(status_code=503, content={"detail": "Database unavailable"})
+
     # Include API routers
     app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
