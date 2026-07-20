@@ -8,6 +8,7 @@ import {
   getSessionMessages,
   sendMessage,
 } from "../services/api";
+import "../styles/chat.css";
 
 export default function ChatPage() {
   const [sessions, setSessions] = useState([]);
@@ -15,6 +16,14 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ── Close sidebar on Escape ────────────────────────────────
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (e) => e.key === "Escape" && setSidebarOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sidebarOpen]);
 
   // ── Load sessions on mount ─────────────────────────────────
   useEffect(() => {

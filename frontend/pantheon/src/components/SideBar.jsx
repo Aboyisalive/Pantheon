@@ -1,7 +1,8 @@
 import { useAuth } from "../context/AuthContext";
+import "../styles/sidebar.css";
 
 export default function Sidebar({
-  sessions,currentSessionId,onSelect,onDelete,onNewChat,isOpen,
+  sessions, currentSessionId, onSelect, onDelete, onNewChat, isOpen, onClose,
 }) {
   const { user, signOut } = useAuth();
 
@@ -12,7 +13,16 @@ export default function Sidebar({
   return (
     <div className={`sidebar${isOpen ? " sidebar--open" : ""}`}>
       <div className="sidebar-header">
-        <div className="sidebar-logo">Pantheon</div>
+        <div className="sidebar-header-top">
+          <div className="sidebar-logo">Pantheon</div>
+          <button
+            className="sidebar-close"
+            onClick={onClose}
+            aria-label="Close sidebar"
+          >
+            ×
+          </button>
+        </div>
         <button className="btn-new-chat" onClick={onNewChat}>
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path

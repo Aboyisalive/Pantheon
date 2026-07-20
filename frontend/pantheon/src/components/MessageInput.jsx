@@ -1,7 +1,16 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function MessageInput({ onSend, loading }) {
   const [input, setInput] = useState("");
+  const textareaRef = useRef(null);
+
+  // Auto-grow up to the CSS max-height, then scroll inside
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
+  }, [input]);
 
   function handleSubmit() {
     const trimmed = input.trim();
@@ -21,6 +30,7 @@ export default function MessageInput({ onSend, loading }) {
     <div className="message-input-container">
       <div className="input-wrapper">
         <textarea
+          ref={textareaRef}
           className="message-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}

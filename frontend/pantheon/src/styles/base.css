@@ -1,0 +1,136 @@
+/* ============================================================
+   PANTHEON — Base: tokens, resets, scrollbars
+   Aesthetic: Refined dark luxury / editorial terminal
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  --bg: #17181b;
+  --bg-elevated: #1d1f23;
+  --panel: #202329;
+  --panel-2: #262a31;
+  --panel-3: #2c3139;
+  --panel-soft: #23262c;
+  --border: #343941;
+  --border-strong: #414751;
+
+  --text: #f2f3f5;
+  --text-soft: #d5d8de;
+  --text-muted: #a0a7b2;
+  --text-faint: #7b828d;
+
+  --accent: #f08b4f;
+  --accent-strong: #ff9a5e;
+  --accent-soft: rgba(240, 139, 79, 0.16);
+  --accent-ring: rgba(240, 139, 79, 0.24);
+
+  --danger: #ff7373;
+  --success: #62d394;
+
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 14px 30px rgba(0, 0, 0, 0.22);
+  --shadow-sm: 0 8px 18px rgba(0, 0, 0, 0.16);
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
+
+  --sidebar-w: 298px;
+  --content-w: 900px;
+
+  --font-ui: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  background: var(--bg);
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+body {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(240, 139, 79, 0.06), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 24%),
+    linear-gradient(180deg, #191b1f 0%, #17181b 100%);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Base scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Focus */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

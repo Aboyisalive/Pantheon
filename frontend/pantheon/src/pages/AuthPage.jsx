@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { login, register } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import "../styles/auth.css";
 
 export default function AuthPage() {
   const { signIn } = useAuth();
