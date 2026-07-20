@@ -176,6 +176,7 @@ export default function Sidebar({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [collapsed, setCollapsed] = useState(() => new Set());
+  const [query, setQuery] = useState("");
   const userMenuRef = useRef(null);
 
   const initials = user?.username
@@ -202,7 +203,10 @@ export default function Sidebar({
     });
   }
 
-  const unfiled = sessions.filter((s) => s.folder_id == null);
+  const search = query.trim().toLowerCase();
+  const matches = (s) => !search || (s.title || "").toLowerCase().includes(search);
+  const visibleSessions = sessions.filter(matches);
+  const unfiled = visibleSessions.filter((s) => s.folder_id == null);
 
   const renderSession = (s) => (
     <SessionItem
@@ -223,7 +227,7 @@ export default function Sidebar({
   );
 
   return (
-    <div className={`sidebar${isOpen ? " sidebar--open" : ""}`}>
+    <div className={`sidebar${isOpen ? " sidebar--open" : " sidebar--collapsed"}`}>
       <div className="sidebar-header">
         <div className="sidebar-header-top">
           <div className="sidebar-logo">Pantheon</div>
@@ -235,23 +239,35 @@ export default function Sidebar({
             ×
           </button>
         </div>
-        <button className="btn-new-chat" onClick={onNewChat}>
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path
-              d="M6.5 1v11M1 6.5h11"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
+        <div className="sidebar-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.4" />
+            <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
           </svg>
-          {t("newChat")}
-        </button>
+          <input
+            className="sidebar-search-input"
+            type="search"
+            placeholder={t("searchChats")}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button
+              className="sidebar-search-clear"
+              onClick={() => setQuery("")}
+              aria-label={t("close")}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="sidebar-sessions">
         {folders.map((f) => {
-          const inFolder = sessions.filter((s) => s.folder_id === f.id);
-          const isCollapsed = collapsed.has(f.id);
+          const inFolder = visibleSessions.filter((s) => s.folder_id === f.id);
+          if (search && inFolder.length === 0) return null;
+          const isCollapsed = !search && collapsed.has(f.id);
           return (
             <div className="folder-group" key={f.id}>
               <div className="folder-header" onClick={() => toggleFolder(f.id)}>
@@ -276,7 +292,7 @@ export default function Sidebar({
 
         <div className="sidebar-section-label">{t("convos")}</div>
 
-        {sessions.length === 0 && (
+        {visibleSessions.length === 0 && (
           <div className="sidebar-empty">{t("noConvos")}</div>
         )}
 
@@ -284,6 +300,22 @@ export default function Sidebar({
       </div>
 
       <div className="sidebar-footer">
+        <button
+          className="btn-new-chat"
+          onClick={onNewChat}
+          title={t("newChat")}
+          aria-label={t("newChat")}
+        >
+          <svg width="16" height="16" viewBox="0 0 13 13" fill="none">
+            <path
+              d="M6.5 1v11M1 6.5h11"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+
         <div className="user-menu-wrap" ref={userMenuRef}>
           {userMenuOpen && (
             <div className="user-menu">

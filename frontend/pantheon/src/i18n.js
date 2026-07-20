@@ -7,6 +7,7 @@ export const LANGUAGES = [
 
 const dictionaries = {
   en: {
+    searchChats: "Search chats…",
     rename: "Rename",
     moveToFolder: "Move to folder",
     removeFromFolder: "Remove from folder",
@@ -45,6 +46,7 @@ const dictionaries = {
     saving: "Saving…",
   },
   es: {
+    searchChats: "Buscar chats…",
     rename: "Renombrar",
     moveToFolder: "Mover a carpeta",
     removeFromFolder: "Quitar de la carpeta",
@@ -83,6 +85,7 @@ const dictionaries = {
     saving: "Guardando…",
   },
   fr: {
+    searchChats: "Rechercher des conversations…",
     rename: "Renommer",
     moveToFolder: "Déplacer vers un dossier",
     removeFromFolder: "Retirer du dossier",
@@ -121,6 +124,7 @@ const dictionaries = {
     saving: "Enregistrement…",
   },
   pt: {
+    searchChats: "Buscar conversas…",
     rename: "Renomear",
     moveToFolder: "Mover para pasta",
     removeFromFolder: "Remover da pasta",

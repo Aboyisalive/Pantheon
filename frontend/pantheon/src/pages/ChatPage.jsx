@@ -22,13 +22,23 @@ export default function ChatPage() {
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Open by default on desktop, closed on mobile (where it overlays)
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => !window.matchMedia("(max-width: 720px)").matches
+  );
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // ── Close sidebar on Escape ────────────────────────────────
+  const isMobile = () => window.matchMedia("(max-width: 720px)").matches;
+  const closeSidebarOnMobile = useCallback(() => {
+    if (isMobile()) setSidebarOpen(false);
+  }, []);
+
+  // ── Close sidebar on Escape (mobile overlay only) ──────────
   useEffect(() => {
     if (!sidebarOpen) return;
-    const onKey = (e) => e.key === "Escape" && setSidebarOpen(false);
+    const onKey = (e) => {
+      if (e.key === "Escape" && isMobile()) setSidebarOpen(false);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [sidebarOpen]);
@@ -71,17 +81,17 @@ export default function ChatPage() {
       setSessions((prev) => [...prev, session]);
       setCurrentSessionId(session.id);
       setMessages([]);
-      setSidebarOpen(false);
+      closeSidebarOnMobile();
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [closeSidebarOnMobile]);
 
   // ── Select session ─────────────────────────────────────────
   const handleSelectSession = useCallback((id) => {
     setCurrentSessionId(id);
-    setSidebarOpen(false);
-  }, []);
+    closeSidebarOnMobile();
+  }, [closeSidebarOnMobile]);
 
   // ── Delete session ─────────────────────────────────────────
   const handleDeleteSession = useCallback(
@@ -215,7 +225,7 @@ export default function ChatPage() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onOpenSettings={() => {
-          setSidebarOpen(false);
+          closeSidebarOnMobile();
           setSettingsOpen(true);
         }}
       />
@@ -224,7 +234,7 @@ export default function ChatPage() {
 
       <div className="chat-main">
         <div className="chat-header">
-          {/* Hamburger — mobile only */}
+          {/* Sidebar toggle — overlay on mobile, collapse on desktop */}
           <button
             className="sidebar-toggle"
             onClick={() => setSidebarOpen((o) => !o)}
