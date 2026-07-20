@@ -1,22 +1,22 @@
 /* ============================================================
    PANTHEON — Base: tokens, resets, scrollbars
-   Aesthetic: Refined dark luxury / editorial terminal
+   Aesthetic: 2D cartoon / Material You — flat fills, chunky
+   outlines, hard offset shadows, pill shapes
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 
-/* ── Tokens ─────────────────────────────────────────────── */
+/* ── Tokens (dark) ──────────────────────────────────────── */
 :root {
   color-scheme: dark;
 
   --bg: #17181b;
-  --bg-elevated: #1d1f23;
-  --panel: #202329;
-  --panel-2: #262a31;
-  --panel-3: #2c3139;
-  --panel-soft: #23262c;
-  --border: #343941;
-  --border-strong: #414751;
+  --surface: #1f2126;
+  --surface-2: #262931;
+  --surface-3: #2d3139;
+
+  --outline: #3d434d;
+  --outline-strong: #4a515c;
 
   --text: #f2f3f5;
   --text-soft: #d5d8de;
@@ -25,61 +25,73 @@
 
   --accent: #f08b4f;
   --accent-strong: #ff9a5e;
-  --accent-soft: rgba(240, 139, 79, 0.16);
-  --accent-ring: rgba(240, 139, 79, 0.24);
+  --on-accent: #1b120d;
+  --accent-container: #3b2919;
+  --on-accent-container: #ffc59d;
+  --accent-outline: #8a5632;
+  --accent-ring: rgba(240, 139, 79, 0.35);
 
   --danger: #ff7373;
+  --danger-container: #3c2224;
+  --on-danger-container: #ffb3b3;
   --success: #62d394;
+  --success-container: #1e3529;
+  --on-success-container: #9fe8c0;
 
-  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.32);
-  --shadow-md: 0 14px 30px rgba(0, 0, 0, 0.22);
-  --shadow-sm: 0 8px 18px rgba(0, 0, 0, 0.16);
+  --shadow-c: rgba(0, 0, 0, 0.55);
+  --shadow-sm: 2px 2px 0 var(--shadow-c);
+  --shadow-md: 4px 4px 0 var(--shadow-c);
+  --shadow-lg: 6px 6px 0 var(--shadow-c);
 
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
   --radius-xl: 30px;
+  --radius-pill: 999px;
+
+  --border: var(--outline);
+  --border-strong: var(--outline-strong);
 
   --sidebar-w: 298px;
   --content-w: 900px;
 
-  --font-ui: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-ui: "Nunito", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "DM Mono", "SFMono-Regular", Consolas, Menlo, monospace;
 }
 
-/* ── Light theme tokens ─────────────────────────────────── */
+/* ── Tokens (light) — same palette, tonal M3 surfaces ───── */
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f4f4f6;
-  --bg-elevated: #ffffff;
-  --panel: #ffffff;
-  --panel-2: #f6f6f8;
-  --panel-3: #eeeff2;
-  --panel-soft: #f2f2f5;
-  --border: #dcdfe4;
-  --border-strong: #c4c9d1;
+  --bg: #f6f1ea;
+  --surface: #fffdf9;
+  --surface-2: #f7efe6;
+  --surface-3: #efe4d7;
 
-  --text: #1c1e22;
-  --text-soft: #34373d;
-  --text-muted: #5d636d;
-  --text-faint: #8a919b;
+  --outline: #2b2620;
+  --outline-strong: #2b2620;
 
-  --accent: #e0762f;
-  --accent-strong: #c96524;
-  --accent-soft: rgba(224, 118, 47, 0.12);
-  --accent-ring: rgba(224, 118, 47, 0.22);
+  --text: #221d17;
+  --text-soft: #38312a;
+  --text-muted: #5f564b;
+  --text-faint: #8a7f71;
 
-  --shadow-lg: 0 24px 60px rgba(28, 30, 34, 0.14);
-  --shadow-md: 0 14px 30px rgba(28, 30, 34, 0.1);
-  --shadow-sm: 0 8px 18px rgba(28, 30, 34, 0.07);
-}
+  --accent: #f08b4f;
+  --accent-strong: #e0762f;
+  --on-accent: #2b1608;
+  --accent-container: #ffe3cd;
+  --on-accent-container: #6b3b17;
+  --accent-outline: #2b2620;
+  --accent-ring: rgba(224, 118, 47, 0.3);
 
-[data-theme="light"] body {
-  background:
-    radial-gradient(circle at top left, rgba(224, 118, 47, 0.05), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(28, 30, 34, 0.03), transparent 24%),
-    linear-gradient(180deg, #f7f7f9 0%, #f2f2f5 100%);
+  --danger: #d84b4b;
+  --danger-container: #ffdcdc;
+  --on-danger-container: #8f2727;
+  --success: #2f9e63;
+  --success-container: #d5f2e1;
+  --on-success-container: #17603a;
+
+  --shadow-c: #2b2620;
 }
 
 * {
@@ -105,19 +117,18 @@ body {
 
 body {
   overflow: hidden;
-  background:
-    radial-gradient(circle at top left, rgba(240, 139, 79, 0.06), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 24%),
-    linear-gradient(180deg, #191b1f 0%, #17181b 100%);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
+  font-weight: 600;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -126,18 +137,19 @@ button {
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: var(--accent-container);
+  color: var(--on-accent-container);
 }
 
 /* Base scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-color: var(--outline) transparent;
 }
 
 *::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 
 *::-webkit-scrollbar-track {
@@ -145,7 +157,7 @@ button {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
+  background: var(--outline);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -155,7 +167,8 @@ button {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+select:focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px var(--accent-ring);
 }
