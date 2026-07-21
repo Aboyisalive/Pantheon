@@ -6,7 +6,7 @@ load_dotenv(dotenv_path=Path(__file__).parent.parent.parent / ".env")
 
 
 class Settings:
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")
+    MISTRAL_API_KEY: str = os.getenv("MISTRAL_API_KEY")
     APP_NAME: str = "Pantheon Backend"
     DEBUG: bool = True
 
