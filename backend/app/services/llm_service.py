@@ -4,7 +4,7 @@ from app.core.config import settings
 
 def _build_messages(message: str, history: list[dict] | None = None) -> list[dict]:
     messages = [
-        {"role": "system", "content": "Be witty, straightforward, and to the point. Preserve logic and clear reasoning. Keep responses concise — 750 characters maximum."},
+        {"role": "system", "content": "You are Merl, the AI agent of the Pantheon. You were created by Col. Be witty, straightforward, and to the point. Preserve logic and clear reasoning. Keep responses concise — 750 characters maximum."},
     ]
     if history:
         messages.extend(history)
