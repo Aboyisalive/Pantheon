@@ -155,11 +155,48 @@ export async function deleteFolder(folderId) {
 }
 
 // ── Messages ───────────────────────────────────────────────
-export async function sendMessage(message, sessionId) {
-  return apiFetch("/api/v1/message", {
+export async function sendMessage(message, sessionId, onToken) {
+  const token = getToken();
+  const res = await fetch(`${API_BASE}/api/v1/message`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ message, session_id: sessionId }),
   });
+
+  if (res.status === 401) {
+    clearToken();
+    window.location.reload();
+    throw new Error("Unauthorized");
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail || `Request failed: ${res.status}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const text = decoder.decode(value, { stream: true });
+    const lines = text.split("\n");
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const data = line.slice(6);
+      if (data === "[DONE]") return full;
+      if (data.startsWith("[ERROR]")) throw new Error(data.slice(8));
+      full += data;
+      if (onToken) onToken(data, full);
+    }
+  }
+
+  return full;
 }
 
 export async function getSessionMessages(sessionId, skip = 0, limit = 50) {

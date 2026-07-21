@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.services.chat_service import generate_response
 from sqlalchemy.orm import Session
@@ -13,6 +14,7 @@ from app.schemas.chat import (
     FolderOut,
 )
 from app.services import chat_service
+from app.services.llm_service import generate_stream
 from app.api.v1.auth import get_current_user
 
 router = APIRouter()
@@ -40,11 +42,31 @@ def create_session(data: SessionCreate, db: Session = Depends(get_db), user=Depe
 def get_sessions(db: Session = Depends(get_db), user=Depends(get_current_user)):
     return chat_service.get_user_sessions(db, user.id)
 
-# Send message
-@router.post("/message", response_model=ChatOut)
+# Send message (streaming)
+@router.post("/message")
 async def send_message(chat: ChatCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    bot_response = await generate_response(chat.message)
-    return chat_service.save_chat(db, user.id, chat.session_id, chat.message, bot_response)
+    if not chat_service.get_session(db, user.id, chat.session_id):
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    history = []
+    for c in chat_service.get_session_chats(db, chat.session_id):
+        history.append({"role": "user", "content": c.message})
+        history.append({"role": "assistant", "content": c.response})
+
+    async def stream_and_save():
+        full_response = ""
+        async for event in generate_stream(chat.message, history):
+            if event.startswith("data: [DONE]"):
+                yield "data: [DONE]\n\n"
+            elif event.startswith("data: [ERROR]"):
+                yield event
+            else:
+                token = event[6:].rstrip("\n\n")
+                full_response += token
+                yield f"data: {token}\n\n"
+        chat_service.save_chat(db, user.id, chat.session_id, chat.message, full_response)
+
+    return StreamingResponse(stream_and_save(), media_type="text/event-stream")
  
 # Get session messages (paginated)
 @router.get("/sessions/{session_id}/messages", response_model=list[ChatOut])

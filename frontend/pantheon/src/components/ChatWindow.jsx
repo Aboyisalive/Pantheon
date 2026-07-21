@@ -23,7 +23,7 @@ export default function ChatWindow({ messages, loading }) {
         <Message key={index} role={msg.role} content={msg.content} />
       ))}
 
-      {loading && (
+      {loading && (messages.length === 0 || messages[messages.length - 1].role === "user") && (
         <div className="loading-indicator">
           <div className="loading-dots">
             <span /><span /><span />

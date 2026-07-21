@@ -173,12 +173,18 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, { role: "user", content: text }]);
       setLoading(true);
 
+      // Add a placeholder assistant message that we stream into
+      const assistantIdx = messages.length + 1;
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
       try {
-        const result = await sendMessage(text, sessionId);
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: result.response },
-        ]);
+        await sendMessage(text, sessionId, (_token, full) => {
+          setMessages((prev) => {
+            const next = [...prev];
+            next[assistantIdx] = { role: "assistant", content: full };
+            return next;
+          });
+        });
 
         setSessions((prev) =>
           prev.map((s) =>
@@ -188,15 +194,16 @@ export default function ChatPage() {
           )
         );
       } catch (err) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: `Error: ${err.message}` },
-        ]);
+        setMessages((prev) => {
+          const next = [...prev];
+          next[assistantIdx] = { role: "assistant", content: `Error: ${err.message}` };
+          return next;
+        });
       } finally {
         setLoading(false);
       }
     },
-    [currentSessionId, loading]
+    [currentSessionId, loading, messages]
   );
 
   const currentSession = sessions.find((s) => s.id === currentSessionId);
